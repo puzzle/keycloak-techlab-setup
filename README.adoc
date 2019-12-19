@@ -4,7 +4,7 @@ Docker Compose based environment used by https://github.com/puzzle/keycloak-tech
 
 == Overview of the Dockerized Lab Setup
 
-image::../TechlabEnvironment.svg[Dockerized Lab Setup Overview]
+image::./TechlabEnvironment.svg[Dockerized Lab Setup Overview]
 
 == References
 
