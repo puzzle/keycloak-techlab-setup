@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
   keycloak:
-    image: ${KEYCLOAK_IMAGE}
+    image: quay.io/keycloak/keycloak:7.0.1
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
@@ -57,7 +57,7 @@ services:
     ports:
       - 3001:3001
   gatekeeper:
-    image: ${GATEKEEPER_IMAGE}
+    image: quay.io/keycloak/keycloak-gatekeeper:7.0.1
     depends_on:
       - "keycloak"
       - "httpbin"
