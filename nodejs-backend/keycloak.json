@@ -1,0 +1,7 @@
+{
+  "realm" : "techlab",
+  "auth-server-url": "http://localhost:8180/auth",
+  "resource" : "techlab-cli",
+  "public-client" : true,
+  "ssl-required" : "none"
+}

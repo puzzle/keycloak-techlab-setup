@@ -1,0 +1,7 @@
+{
+  "realm" : "techlab",
+  "auth-server-url" : "http://keycloak:8180/auth/",
+  "ssl-required" : "external",
+  "resource" : "js-console",
+  "public-client" : true
+}

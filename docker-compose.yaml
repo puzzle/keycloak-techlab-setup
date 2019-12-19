@@ -1,0 +1,87 @@
+version: "3"
+
+volumes:
+  postgres_data:
+    driver: local
+  wildfly_data:
+    driver: local
+
+services:
+  wildfly:
+    build:
+      context: ./quickstarts-wildfly/
+    volumes:
+      - wildfly_data:/data
+    ports:
+      - "8888:8080"
+      - "9990:9990"
+  postgres:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+  keycloak:
+    image: ${KEYCLOAK_IMAGE}
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+      KEYCLOAK_LOGLEVEL: DEBUG
+    command: "-Djboss.socket.binding.port-offset=100"
+    ports:
+      - 8180:8180
+  httpbin:
+    image: kennethreitz/httpbin
+    ports:
+      - 8088:80
+  techlab-jsclient:
+    image: nginx:latest
+    ports:
+      - 8082:8082
+    volumes:
+      - ./js-console/web-resources/:/usr/share/nginx/html:Z
+      - ./js-console/default-nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
+  techlab-service:
+    build:
+      dockerfile: Dockerfile
+      context: ./nodejs-backend
+    network_mode: host
+    ports:
+      - 3001:3001
+  gatekeeper:
+    image: ${GATEKEEPER_IMAGE}
+    depends_on:
+      - "keycloak"
+      - "httpbin"
+    ports:
+      - 3000:3000
+    environment:
+      - PROXY_LISTEN=0.0.0.0:3000
+      - PROXY_DISCOVERY_URL=http://keycloak:8180/auth/realms/techlab
+      - PROXY_CLIENT_ID=lab-gatekeeper
+      - PROXY_CLIENT_SECRET=551daeed-6e44-4c12-bd02-f8a6ff01937c
+    command:
+      - --verbose=true
+      - --redirection-url=http://localhost:3000
+      - --secure-cookie=false
+      - --encryption-key=AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
+      - --enable-refresh-tokens=true
+      - --enable-session-cookies=true
+      - --enable-default-deny=true
+      - --enable-logging=true
+      - --resources=uri=/*
+      - --resources=uri=/ip|roles=lab-gatekeeper:gatekeeper-ip
+      - --resources=uri=/anything|roles=lab-gatekeeper:gatekeeper-anything
+      - --upstream-url=http://httpbin:80
+  openldap:
+    image: rroemhild/test-openldap
+    ports:
+      - 389:389
