@@ -35,9 +35,12 @@ services:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: password
       KEYCLOAK_LOGLEVEL: DEBUG
-    command: "-Djboss.socket.binding.port-offset=100"
+      JAVA_OPTS: "-Djboss.socket.binding.port-offset=100 -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
     ports:
       - 8180:8180
+      - 8000:8000
+    volumes:
+      - ./custom-theme/:/opt/jboss/keycloak/themes/custom-theme
   httpbin:
     image: kennethreitz/httpbin
     ports:
