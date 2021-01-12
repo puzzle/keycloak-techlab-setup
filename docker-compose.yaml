@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
   keycloak:
-    image: quay.io/keycloak/keycloak:8.0.1
+    image: quay.io/keycloak/keycloak:12.0.1
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
@@ -59,29 +59,27 @@ services:
     network_mode: host
     ports:
       - 3001:3001
-  gatekeeper:
-    image: quay.io/keycloak/keycloak-gatekeeper:8.0.1
+  oauth2proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v6.1.1
     depends_on:
       - "keycloak"
       - "httpbin"
     ports:
       - 3000:3000
     environment:
-      - PROXY_LISTEN=0.0.0.0:3000
-      - PROXY_DISCOVERY_URL=http://keycloak:8180/auth/realms/techlab
-      - PROXY_CLIENT_ID=lab-gatekeeper
-      - PROXY_CLIENT_SECRET=72549906-9b1d-43fc-9988-11360c9ebd57
-    command:
-      - --verbose=true
-      - --redirection-url=http://localhost:3000
-      - --secure-cookie=false
-      - --encryption-key=AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
-      - --enable-refresh-tokens=true
-      - --enable-session-cookies=true
-      - --enable-default-deny=true
-      - --enable-logging=true
-      - --resources=uri=/*
-      - --upstream-url=http://httpbin:80
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:3000
+      OAUTH2_PROXY_HTTPS_ADDRESS: 0.0.0.0:3001
+      OAUTH2_PROXY_UPSTREAM: http://httpbin:80
+      OAUTH2_PROXY_REDIRECT_URL: http://localhost:3000
+      OAUTH2_PROXY_PROVIDER: keycloak
+      OAUTH2_PROXY_CLIENT_ID: gatekeeper
+      OAUTH2_PROXY_CLIENT_SECRET: 72549906-9b1d-43fc-9988-11360c9ebd57
+      OAUTH2_PROXY_LOGIN_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/auth
+      OAUTH2_PROXY_REDEEM_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/token
+      OAUTH2_PROXY_VALIDATE_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/userinfo
+      OAUTH2_PROXY_COOKIE_SECRET: somerandomstring12341234567890AB
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
   openldap:
     image: rroemhild/test-openldap
     ports:
