@@ -61,26 +61,49 @@ services:
       - 3001:3001
   oauth2proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:v6.1.1
-    depends_on:
-      - "keycloak"
-      - "httpbin"
     ports:
       - 3000:3000
     environment:
       OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:3000
-      OAUTH2_PROXY_HTTPS_ADDRESS: 0.0.0.0:3001
-      OAUTH2_PROXY_UPSTREAM: http://httpbin:80
+      OAUTH2_PROXY_UPSTREAMS: http://httpbin:80
       OAUTH2_PROXY_REDIRECT_URL: http://localhost:3000
-      OAUTH2_PROXY_PROVIDER: keycloak
-      OAUTH2_PROXY_CLIENT_ID: gatekeeper
-      OAUTH2_PROXY_CLIENT_SECRET: 72549906-9b1d-43fc-9988-11360c9ebd57
-      OAUTH2_PROXY_LOGIN_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/auth
-      OAUTH2_PROXY_REDEEM_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/token
-      OAUTH2_PROXY_VALIDATE_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/userinfo
+      OAUTH2_PROXY_PROVIDER: oidc
+      OAUTH2_PROXY_CLIENT_ID: lab-proxy
+      OAUTH2_PROXY_CLIENT_SECRET: 86bc47ba-9ecb-41b0-9947-8ba4291fab83
+      OAUTH2_PROXY_OIDC_ISSUER_URL: http://keycloak:8180/auth/realms/techlab
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
       OAUTH2_PROXY_COOKIE_SECRET: somerandomstring12341234567890AB
       OAUTH2_PROXY_EMAIL_DOMAINS: "*"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      OAUTH2_PROXY_SCOPE: "openid profile email"
+      #OAUTH2_PROXY_COOKIE_REFRESH: "5m"
+      OAUTH2_PROXY_USER_ID_CLAIM: "preferred_username"
+      #OAUTH2_PROXY_SSL_UPSTREAM_INSECURE_SKIP_VERIFY: "true"
+  proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v6.1.1
+    ports:
+      - 3333:3333
+    environment:
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:3333
+      OAUTH2_PROXY_UPSTREAMS: http://httpbin:80
+      OAUTH2_PROXY_REDIRECT_URL: http://localhost:3333
+      OAUTH2_PROXY_PROVIDER: keycloak
+      OAUTH2_PROXY_CLIENT_ID: lab-proxy
+      OAUTH2_PROXY_CLIENT_SECRET: 86bc47ba-9ecb-41b0-9947-8ba4291fab83
+      OAUTH2_PROXY_LOGIN_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/auth
+      OAUTH2_PROXY_REDEEM_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/token
+      OAUTH2_PROXY_VALIDATE_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/userinfo
+      #OAUTH2_PROXY_OIDC_JWKS_URL: http://keycloak:8180/auth/realms/techlab/protocol/openid-connect/certs
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
+      OAUTH2_PROXY_COOKIE_SECRET: somerandomstring12341234567890AB
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      #OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      OAUTH2_PROXY_SCOPE: "openid profile email"
+      OAUTH2_PROXY_USER_ID_CLAIM: "email"
+      ##OAUTH2_PROXY_SSL_UPSTREAM_INSECURE_SKIP_VERIFY: "true"
+      OAUTH2_PROXY_KEYCLOAK_GROUP: "/user"
   openldap:
     image: rroemhild/test-openldap
     ports:
       - 389:389
+
