@@ -1,6 +1,8 @@
 = Keycloak Techlab - Docker Compose Setup
 
-Docker Compose based environment used by https://github.com/puzzle/keycloak-techlab[Keycloak Techlab]
+== Techlab last given
+
+Docker Compose based environment used by https://github.com/puzzle/keycloak-techlab[Keycloak Techlab] last given in January/Febuary 2021
 
 == Overview of the Dockerized Lab Setup
 
